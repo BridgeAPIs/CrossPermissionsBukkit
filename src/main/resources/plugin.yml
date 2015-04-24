@@ -1,0 +1,20 @@
+name: CrossPermissionsBukkit
+main: net.zyuiop.crosspermissions.bukkit.PermissionsBukkit
+author: zyuiop
+version: 2.0.1b
+commands:
+   refresh:
+       aliases: [bukkitrefresh]
+       description: Force le refresh des permissions locales
+       permission: permissions.bukkit.refresh
+       permission-message: Vous n'avez pas la permission.
+   users:
+       aliases: [u, user]
+       description: Commande de gestion des utilisateurs
+   groups:
+       aliases: [g, group]
+       description: Commande de gestion des groupes d'utilisateurs
+permissions:
+   permissions.bukkit.refresh:
+       description: Permission de raffaichir les perms
+       default: false
