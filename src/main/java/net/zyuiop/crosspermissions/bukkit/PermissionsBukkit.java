@@ -76,11 +76,11 @@ public class PermissionsBukkit extends JavaPlugin implements RawPlugin {
              */
         } else if (config.getBoolean("redis.enabled", false)) {
             logInfo("Trying to load API with database mode : REDIS.");
-            String address = config.getString("redis.address");
-            String auth = config.getString("redis.auth");
+            String address = config.getString("redis.address", null);
+            String auth = config.getString("redis.auth", null);
             int port = config.getInt("redis.port", 6379);
 
-            if (address == null || auth == null) {
+            if (address == null) {
                 logSevere("Configuration is not complete. Plugin failed to load.");
                 getPluginLoader().disablePlugin(this);
                 return;
