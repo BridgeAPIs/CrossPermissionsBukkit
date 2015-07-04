@@ -6,9 +6,12 @@ import net.zyuiop.crosspermissions.api.database.JedisSentinelDatabase;
 import net.zyuiop.crosspermissions.api.permissions.PermissionEntity;
 import net.zyuiop.crosspermissions.api.rawtypes.RawPlayer;
 import net.zyuiop.crosspermissions.api.rawtypes.RawPlugin;
+import net.zyuiop.crosspermissions.api.rawtypes.RefreshHook;
 import net.zyuiop.crosspermissions.bukkit.commands.CommandGroups;
 import net.zyuiop.crosspermissions.bukkit.commands.CommandRefresh;
 import net.zyuiop.crosspermissions.bukkit.commands.CommandUsers;
+import net.zyuiop.crosspermissions.bukkit.tags.ChatListener;
+import net.zyuiop.crosspermissions.bukkit.tags.TabTagsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -30,11 +33,12 @@ import java.util.logging.Level;
  */
 public class PermissionsBukkit extends JavaPlugin implements RawPlugin {
 
-    protected static PermissionsAPI api = null;
-    protected HashMap<UUID, VirtualPlayer> players = new HashMap<UUID, VirtualPlayer>();
-    protected ArrayList<BukkitTask> tasks = new ArrayList<>();
-    protected boolean isLobby = false;
+    protected static PermissionsAPI               api     = null;
+    protected        HashMap<UUID, VirtualPlayer> players = new HashMap<UUID, VirtualPlayer>();
+    protected        ArrayList<BukkitTask>        tasks   = new ArrayList<>();
+    protected        boolean                      isLobby = false;
     protected static PermissionsBukkit instance;
+    protected HashSet<RefreshHook> hooks = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -102,12 +106,30 @@ public class PermissionsBukkit extends JavaPlugin implements RawPlugin {
             return;
         }
 
+        if (config.getBoolean("chat-tags", true))
+            new ChatListener(this, config.getString("chat-format", "{PREFIX}{NAME}{SUFFIX}: {MESSAGE}"));
+        if (config.getBoolean("tab-tags", true))
+            addRefreshHook(new TabTagsManager(this));
+
         api.getManager().refreshGroups();
 
         this.getCommand("refresh").setExecutor(new CommandRefresh(api, this));
         this.getCommand("groups").setExecutor(new CommandGroups(api));
         this.getCommand("users").setExecutor(new CommandUsers(api));
         this.getServer().getPluginManager().registerEvents(new PlayerListeners(this), this);
+    }
+
+    public static void addRefreshHook(RefreshHook hook) {
+        instance.hooks.add(hook);
+    }
+
+    /**
+     * Called after the refresh
+     * May be usefull if you want to do some stuff AFTER the refresh
+     */
+    @Override
+    public void onRefreshHook() {
+        hooks.forEach(net.zyuiop.crosspermissions.api.rawtypes.RefreshHook::onRefreshHook);
     }
 
     @Override

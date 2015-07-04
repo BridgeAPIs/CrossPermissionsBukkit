@@ -33,7 +33,7 @@ public class CommandUsers implements CommandExecutor {
             if (u.hasPermission(basePerm + ".*")) return true;
             if (u.hasPermission(basePerm + "." + command + ".*")) return true;
 
-            ArrayList<String> uniperm = new ArrayList<String>();
+            ArrayList<String> uniperm = new ArrayList<>();
             uniperm.add("info");
             uniperm.add("allinfos");
             uniperm.add("help");

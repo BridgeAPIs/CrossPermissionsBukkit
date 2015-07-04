@@ -16,3 +16,14 @@ redis:
 
 tab-tags: true
 chat-tags: true
+chat-format: "{PREFIX}{NAME}{SUFFIX}: {MESSAGE}" # used to format the chat
+
+# Tags are defined through different variables
+# To set a variable : /groups setoption <group> <variable> <value> OR /users setoption <user> <variable> <value>
+# prefix : before the name
+# suffix : after the name (usually used to reset the color)
+# Please note : to add a space in a prefix or a suffix, insert "&s"
+# Example :
+#  - prefix : "[Cool]&s"
+#  - suffix empty
+#  => "[Cool] zyuiop: hello !"
