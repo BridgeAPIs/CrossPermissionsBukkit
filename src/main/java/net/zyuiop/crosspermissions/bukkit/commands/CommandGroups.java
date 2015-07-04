@@ -66,18 +66,19 @@ public class CommandGroups implements CommandExecutor {
         if (args[0].equalsIgnoreCase("help")) {
             sender.sendMessage(ChatColor.GOLD + "Aide de /groups :");
             HashMap<String, String> com = new HashMap<>();
-            com.put("list", "liste les groupes enregistrés dans le cache.");
-            com.put("create <groupe> <rank>", "crée le groupe");
-            com.put("addparent <groupe> <parent>", "Ajoute le groupe <parent> dans les parents de <groupe>");
-            com.put("delparent <groupe> <parent>", "Enlève <parent> des parents de <groupe>");
-            com.put("deletegroup <group>", "Supprime le groupe");
-            com.put("add <group> <permission>", "Définit une permission. -<perm> : interdiction");
-            com.put("del <group> <permission>", "Enlève une permission/interdiction");
-            com.put("setoption <group> <option> <valeur>", "Définit une option");
-            com.put("deloption <group> <option>", "Supprime une option.");
-            com.put("rename <grouo> <new name>", "Renomme le groupe");
-            com.put("info <group>", "Affiche des infos sur le groupe");
-            com.put("allinfos <group>", "Affiche toutes les infos du groupe");
+            com.put("list", "Lists the existing groups.");
+            com.put("create <group> <rank>", "créates the group");
+            com.put("addparent <group> <parent>", "Adds the group <parent> in the parents of the group <group>");
+            com.put("delparent <group> <parent>", "Removes the group <parent> from the parents of the group <group>");
+            com.put("deletegroup <group>", "Delets the group " + ChatColor.RED + "(Warning : might cause bugs)");
+            com.put("add <group> <permission>", "Adds a permission. If you prefix the permission with \"-\", the permission will be a forbidden");
+            com.put("del <group> <permission>", "Removes a permission");
+            com.put("setoption <group> <option> <valeur>", "Défines an option");
+            com.put("deloption <group> <option>", "Removes an option.");
+            com.put("info <group>", "Displays some information about the group");
+            com.put("allinfos <group>", "Displays all the information about the group, including the inherited information");
+            com.put("rename <group> <new name>", "Renomme le groupe");
+
 
             for (String command : com.keySet()) {
                 sender.sendMessage(ChatColor.GOLD + "/groups " + command + ChatColor.WHITE + " : " + com.get(command));
@@ -93,7 +94,7 @@ public class CommandGroups implements CommandExecutor {
             }
 
             if (args.length < 2) {
-                sender.sendMessage(ChatColor.RED + "Commande invalide : /groups help pour plus d'infos");
+                sender.sendMessage(ChatColor.RED + "Invalid command : please run /groups help");
                 return;
             }
 
@@ -103,7 +104,7 @@ public class CommandGroups implements CommandExecutor {
                     return;
                 }
                 if (api.getManager().getGroup(args[1]) != null) {
-                    sender.sendMessage(ChatColor.RED + "Le groupe existe déjà.");
+                    sender.sendMessage(ChatColor.RED + "The groups already exists.");
                     return;
                 }
 
@@ -112,46 +113,46 @@ public class CommandGroups implements CommandExecutor {
                 api.getManager().refreshGroups();
             } else if (command.equalsIgnoreCase("addparent")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "This group doesn't exist");
                     return;
                 }
 
                 PermissionGroup parent = api.getManager().getGroup(args[2]);
                 if (parent == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe parent n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The parent group doesn't exist");
                     return;
                 }
 
                 g.addParent(parent);
-                sender.sendMessage(ChatColor.GREEN + "Le parent a été ajouté.");
+                sender.sendMessage(ChatColor.GREEN + parent.getGroupName() + " is now a parent of " + g.getGroupName() +" !");
             } else if (command.equalsIgnoreCase("delparent")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "This group doesn't exist");
                     return;
                 }
 
                 PermissionGroup parent = api.getManager().getGroup(args[2]);
                 if (parent == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe parent n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The parent group doesn't exist");
                     return;
                 }
 
                 g.removeParent(parent);
-                sender.sendMessage(ChatColor.GREEN + "Le parent a été supprimé.");
+                sender.sendMessage(ChatColor.GREEN + parent.getGroupName() + " is not a parent of " + g.getGroupName() +" anymore.");
             } else if (command.equalsIgnoreCase("deletegroup")) {
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The parent group doesn't exist.");
                     return;
                 }
 
@@ -159,12 +160,12 @@ public class CommandGroups implements CommandExecutor {
                 api.getManager().refreshGroups();
             } else if (command.equalsIgnoreCase("add")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
@@ -174,15 +175,15 @@ public class CommandGroups implements CommandExecutor {
                 if (!value) permission = permission.substring(1); // On vire le "-"
 
                 g.setPermission(permission, value);
-                sender.sendMessage(ChatColor.GREEN + "La permission a été définie.");
+                sender.sendMessage(ChatColor.GREEN + "The permission was added.");
             } else if (command.equalsIgnoreCase("setoption")) {
                 if (args.length < 4) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
@@ -190,53 +191,54 @@ public class CommandGroups implements CommandExecutor {
                 String value = args[3];
 
                 g.setProperty(option, value);
-                sender.sendMessage(ChatColor.GREEN + "L'option a été définie.");
+                sender.sendMessage(ChatColor.GREEN + "The option was defined.");
             } else if (command.equalsIgnoreCase("deloption")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
                 g.deleteProperty(args[2]);
-                sender.sendMessage(ChatColor.GREEN + "L'option a été supprimée.");
+                sender.sendMessage(ChatColor.GREEN + "The option was deleted");
             } else if (command.equalsIgnoreCase("rename")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
                 api.getManager().moveGroup(args[1], args[2]);
+                sender.sendMessage(ChatColor.GREEN + "The group was renamed !");
             } else if (command.equalsIgnoreCase("del")) {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Arguments manquants");
+                    sender.sendMessage(ChatColor.RED + "Missing arguments");
                     return;
                 }
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
                 g.deletePermission(args[2]);
-                sender.sendMessage(ChatColor.GREEN + "La permission a été supprimée");
+                sender.sendMessage(ChatColor.GREEN + "The permission was deleted");
             } else if (command.equalsIgnoreCase("info")) {
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
-                sender.sendMessage(ChatColor.GOLD + "Groupe " + g.getGroupName() + " (rank : " + g.getLadder() + ")");
+                sender.sendMessage(ChatColor.GOLD + "Group " + g.getGroupName() + " (rank : " + g.getLadder() + ")");
                 sender.sendMessage(ChatColor.GREEN + "PARENTS :");
                 for (PermissionGroup parent : g.getParents()) {
                     if (parent != null)
@@ -255,12 +257,12 @@ public class CommandGroups implements CommandExecutor {
             } else if (command.equalsIgnoreCase("allinfos")) {
                 PermissionGroup g = api.getManager().getGroup(args[1]);
                 if (g == null) {
-                    sender.sendMessage(ChatColor.RED + "Erreur : le groupe n'existe pas");
+                    sender.sendMessage(ChatColor.RED + "The group doesn't exist");
                     return;
                 }
 
-                sender.sendMessage(ChatColor.GOLD + "Groupe " + g.getGroupName() + " (rank : " + g.getLadder() + ", id " + g.getEntityID() + ")");
-                sender.sendMessage(ChatColor.GOLD + "Infos complètes = perms et options héritées inclues.");
+                sender.sendMessage(ChatColor.GOLD + "Group " + g.getGroupName() + " (rank : " + g.getLadder() + ", id " + g.getEntityID() + ")");
+                sender.sendMessage(ChatColor.GOLD + "Complete data, including inherited data.");
                 sender.sendMessage(ChatColor.GREEN + "PARENTS :");
                 for (PermissionGroup parent : g.getParents()) {
                     sender.sendMessage(" => " + parent.getGroupName() + " - Rank " + parent.getLadder());
@@ -276,7 +278,7 @@ public class CommandGroups implements CommandExecutor {
                     sender.sendMessage(" => " + option + " - val : " + g.getProperty(option));
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Cette commande n'existe pas.");
+                sender.sendMessage(ChatColor.RED + "This command doesn't exist.");
             }
         }
     }

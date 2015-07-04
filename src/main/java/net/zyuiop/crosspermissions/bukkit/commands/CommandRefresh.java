@@ -24,9 +24,9 @@ public class CommandRefresh implements CommandExecutor {
     @Override
     public boolean onCommand(final CommandSender commandSender, Command command, String s, String[] strings) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            commandSender.sendMessage(ChatColor.GREEN+"Début du raffraichissement du cache de permissions local...");
+            commandSender.sendMessage(ChatColor.GREEN+"Starting local permissions cache refresh...");
             api.getManager().refresh();
-            commandSender.sendMessage(ChatColor.GREEN+"Les permissions locales ont été raffraichies !");
+            commandSender.sendMessage(ChatColor.GREEN+"Permissions refreshed !");
         });
         return true;
     }
