@@ -14,6 +14,14 @@ redis:
    address: ip
    port: port
 
+sql:
+  enabled: false
+  host: host
+  port: 3306
+  database: database
+  user: user
+  password: password
+
 tab-tags: true
 chat-tags: true
 chat-format: "{PREFIX}{NAME}{SUFFIX}: {MESSAGE}" # used to format the chat
