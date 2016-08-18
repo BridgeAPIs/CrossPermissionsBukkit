@@ -19,8 +19,8 @@ import java.util.HashMap;
  * @author zyuiop
  */
 public class TabTagsManager implements RefreshHook, Listener {
-	private HashMap<String, Integer> teamsIds = new HashMap<>();
-	private HashMap<Integer, Team> teams = new HashMap<>();
+	private HashMap<String, String> teamsIds = new HashMap<>();
+	private HashMap<String, Team> teams = new HashMap<>();
 	private Integer lastTeamId = 1;
 	private Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 	private final PermissionsBukkit instance;
@@ -48,7 +48,7 @@ public class TabTagsManager implements RefreshHook, Listener {
 			if (suffix.equals("") && prefix.equals(""))
 				continue;
 
-			getTeam(prefix, suffix);
+			getTeam(prefix, suffix, group.getProperty("tab-position"));
 		}
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
@@ -61,7 +61,7 @@ public class TabTagsManager implements RefreshHook, Listener {
 			if (suffix.equals("") && prefix.equals(""))
 				continue;
 
-			Team team = getTeam(prefix, suffix);
+			Team team = getTeam(prefix, suffix, user.getProperty("tab-position"));
 			team.addPlayer(player);
 		}
 	}
@@ -78,23 +78,30 @@ public class TabTagsManager implements RefreshHook, Listener {
 			if (suffix.equals("") && prefix.equals(""))
 				return;
 
-			Team team = getTeam(prefix, suffix);
+			Team team = getTeam(prefix, suffix, user.getProperty("tab-position"));
 			Bukkit.getScheduler().runTask(instance, () -> team.addPlayer(event.getPlayer()));
 		});
 		event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 	}
 
-	private Team getTeam(String prefix, String suffix) {
+	private Team getTeam(String prefix, String suffix, String order) {
 		if (prefix.length() > 16)
 			prefix = prefix.substring(0, 16);
 		if (suffix.length() > 16)
 			suffix = suffix.substring(0, 16);
+		if (order != null && order.length() > 5)
+			order = order.substring(0, 5);
 
 		String identification = prefix + ">" + suffix;
-		Integer id = teamsIds.get(identification);
+		String id = teamsIds.get(identification);
 		if (id == null) {
-			id = lastTeamId++;
-			Team team = scoreboard.registerNewTeam("Tid" + id);
+			id = "";
+			if (order != null)
+				id = order;
+			id += Integer.toHexString(lastTeamId++);
+			teamsIds.put(identification, id);
+
+			Team team = scoreboard.registerNewTeam("_CP" + id);
 			team.setPrefix(prefix);
 			team.setSuffix(suffix);
 			team.setNameTagVisibility(NameTagVisibility.ALWAYS);
