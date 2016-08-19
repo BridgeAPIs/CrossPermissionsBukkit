@@ -22,7 +22,7 @@ public class TabTagsManager implements RefreshHook, Listener {
 	private HashMap<String, String> teamsIds = new HashMap<>();
 	private HashMap<String, Team> teams = new HashMap<>();
 	private Integer lastTeamId = 1;
-	private Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+	private Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 	private final PermissionsBukkit instance;
 
 	public TabTagsManager(PermissionsBukkit instance) {
@@ -81,7 +81,7 @@ public class TabTagsManager implements RefreshHook, Listener {
 			Team team = getTeam(prefix, suffix, user.getProperty("tab-position"));
 			Bukkit.getScheduler().runTask(instance, () -> team.addPlayer(event.getPlayer()));
 		});
-		event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+		event.getPlayer().setScoreboard(scoreboard);
 	}
 
 	private Team getTeam(String prefix, String suffix, String order) {
@@ -98,10 +98,17 @@ public class TabTagsManager implements RefreshHook, Listener {
 			id = "";
 			if (order != null)
 				id = order;
-			id += Integer.toHexString(lastTeamId++);
+			id += "_CP" + Integer.toHexString(lastTeamId++);
 			teamsIds.put(identification, id);
 
-			Team team = scoreboard.registerNewTeam("_CP" + id);
+			Team team;
+			try {
+				team = scoreboard.getTeam(id);
+				if (team == null)
+					team = scoreboard.registerNewTeam(id);
+			} catch (IllegalArgumentException e) {
+				team = scoreboard.registerNewTeam(id);
+			}
 			team.setPrefix(prefix);
 			team.setSuffix(suffix);
 			team.setNameTagVisibility(NameTagVisibility.ALWAYS);

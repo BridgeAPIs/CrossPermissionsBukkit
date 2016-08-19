@@ -54,7 +54,7 @@ public class CommandUsers implements CommandExecutor {
     }
 
     public UUID getPlayerID(String name) {
-        return api.getTranslator().getUUID(name, false);
+        return api.getTranslator().getUUID(name, true);
     }
 
     public void execute(CommandSender sender, String[] args) {
